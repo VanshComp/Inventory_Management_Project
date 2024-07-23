@@ -5,8 +5,8 @@ from .forms import ProductForm, OrderForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .decorators import auth_users, allowed_users
-# Create your views here.
 
+# Create your views here.
 
 @login_required(login_url='user-login')
 def index(request):
@@ -14,7 +14,7 @@ def index(request):
     product_count = product.count()
     order = Order.objects.all()
     order_count = order.count()
-    customer = User.objects.filter(groups=2)
+    customer = User.objects.filter(groups__name='Customer')
     customer_count = customer.count()
 
     if request.method == 'POST':
@@ -41,11 +41,11 @@ def index(request):
 def products(request):
     product = Product.objects.all()
     product_count = product.count()
-    customer = User.objects.filter(groups=2)
+    customer = User.objects.filter(groups__name='Customer')
     customer_count = customer.count()
     order = Order.objects.all()
     order_count = order.count()
-    product_quantity = Product.objects.filter(name='')
+
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
@@ -67,8 +67,9 @@ def products(request):
 
 @login_required(login_url='user-login')
 def product_detail(request, pk):
+    product = Product.objects.get(id=pk)
     context = {
-
+        'product': product,
     }
     return render(request, 'dashboard/products_detail.html', context)
 
@@ -76,7 +77,7 @@ def product_detail(request, pk):
 @login_required(login_url='user-login')
 @allowed_users(allowed_roles=['Admin'])
 def customers(request):
-    customer = User.objects.filter(groups=2)
+    customer = User.objects.filter(groups__name='Customer')
     customer_count = customer.count()
     product = Product.objects.all()
     product_count = product.count()
@@ -94,7 +95,7 @@ def customers(request):
 @login_required(login_url='user-login')
 @allowed_users(allowed_roles=['Admin'])
 def customer_detail(request, pk):
-    customer = User.objects.filter(groups=2)
+    customer = User.objects.filter(groups__name='Customer')
     customer_count = customer.count()
     product = Product.objects.all()
     product_count = product.count()
@@ -106,7 +107,6 @@ def customer_detail(request, pk):
         'customer_count': customer_count,
         'product_count': product_count,
         'order_count': order_count,
-
     }
     return render(request, 'dashboard/customers_detail.html', context)
 
@@ -145,7 +145,7 @@ def product_delete(request, pk):
 def order(request):
     order = Order.objects.all()
     order_count = order.count()
-    customer = User.objects.filter(groups=2)
+    customer = User.objects.filter(groups__name='Customer')
     customer_count = customer.count()
     product = Product.objects.all()
     product_count = product.count()
